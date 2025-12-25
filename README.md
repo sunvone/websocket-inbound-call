@@ -12,7 +12,6 @@ This project implements a WebSocket server acting as an inbound call handler. It
 - [Architecture](#architecture)
 - [Call Flow](#call-flow)
 - [Server Implementations](#server-implementations)
-- [Python Client](#python-client)
 - [Troubleshooting](#troubleshooting)
 
 ## Server Information
@@ -36,32 +35,18 @@ npm install
 pip install websockets
 ```
 
-### Python Client
-
-```bash
-pip install websockets
-```
-
 ## Quick Start
 
-### Option 1: Node.js Server + Python Client
+### Node.js Server
 
 ```bash
-# Terminal 1: Start Node.js server
 node index.js
-
-# Terminal 2: Run Python client
-python client_python.py
 ```
 
-### Option 2: Python Server + Python Client
+### Python Server
 
 ```bash
-# Terminal 1: Start Python server
 python server_example.py
-
-# Terminal 2: Run Python client
-python client_python.py
 ```
 
 ### Server Output
@@ -75,18 +60,6 @@ Python:
 ```
 2025-12-25 00:00:00 - INFO - Starting WebSocket server on localhost:4143
 2025-12-25 00:00:00 - INFO - WebSocket server listening on ws://localhost:4143
-```
-
-Client output:
-
-```
-2025-12-25 00:00:00 - INFO - Connecting to ws://localhost:4143...
-2025-12-25 00:00:00 - INFO - Connected!
-2025-12-25 00:00:00 - INFO - Waiting for events from server...
-2025-12-25 00:00:00 - INFO - Received JSON: {'event': 'incoming_call', 'sessionId': '550e8400...'}
-2025-12-25 00:00:05 - INFO - Call ANSWERED!
-
-...
 ```
 
 ## Message Formats
@@ -122,7 +95,7 @@ Sent when a DTMF digit is pressed.
 
 #### `hangup`
 
-Sent when the client terminates the call.
+Sent when client terminates call.
 
 ```json
 {
@@ -211,27 +184,22 @@ Server ─────────────────────[hangup]�
 **Detailed Flow:**
 
 1. **Connection** (0s)
-
    - Client connects to `ws://localhost:4143`
    - Client generates `sessionId`
 
 2. **Incoming Call** (1s)
-
    - Server sends `{ "event": "incoming_call" }`
 
 3. **Answer** (6s)
-
    - Server sends `{ "event": "answer" }`
    - Client starts streaming binary audio
    - Server echoes audio back
 
 4. **DTMF** (6s - 16s)
-
    - Client sends DTMF events: `{ "event": "dtmf", "sessionId": "...", "digit": "1" }`
    - Server logs each DTMF event
 
 5. **Hangup** (16s)
-
    - Server sends `{ "event": "hangup" }`
    - Connection closes
 
@@ -246,7 +214,6 @@ node index.js
 
 **Features:**
 - Native WebSocket implementation using `ws` library
-- Built-in crypto module for UUID generation
 - Event-driven architecture
 - Echo binary audio data
 
@@ -284,78 +251,17 @@ python server_example.py --verbose
 - Echo binary audio data
 - Comprehensive logging
 
-## Python Client
-
-### Basic Usage
-
-```bash
-python client_python.py
-```
-
-### Command-Line Options
-
-```bash
-python client_python.py --help
-```
-
-| Option          | Description                     | Default               |
-| --------------- | ------------------------------- | --------------------- |
-| `--url`         | WebSocket server URL            | `ws://localhost:4143` |
-| `--no-dtmf`     | Disable sending DTMF events     | `false`               |
-| `--auto-hangup` | Auto hangup after sending audio | `false`               |
-| `--verbose`     | Enable verbose logging          | `false`               |
-
-### Examples
-
-**Connect to custom server:**
-
-```bash
-python client_python.py --url ws://192.168.1.100:4143
-```
-
-**Disable DTMF:**
-
-```bash
-python client_python.py --no-dtmf
-```
-
-**Auto hangup:**
-
-```bash
-python client_python.py --auto-hangup
-```
-
-**Verbose mode:**
-
-```bash
-python client_python.py --verbose
-```
-
-### Client Features
-
-- **Audio Streaming**: Simulates PCM audio streaming (8kHz, 20ms frames)
-- **DTMF Support**: Automatically sends DTMF sequence `1-5` after answer
-- **Error Handling**: Proper connection error handling and cleanup
-- **Configurable**: URL, DTMF, auto-hangup via CLI arguments
-- **Logging**: Timestamped logging for debugging
-
 ## Troubleshooting
 
 ### Server Not Starting
 
 **Error:** `EADDRINUSE: address already in use`
 
-**Solution:** Another process is using port 4143. Kill it or change the port in `index.js`.
-
-### Client Connection Failed
-
-**Error:** `Connection refused`
-
-**Solution:** Make sure the server is running on `http://localhost:4143`.
+**Solution:** Another process is using port 4143. Kill it or change the port.
 
 ### DTMF Not Received
 
-**Check:** Verify the `sessionId` matches between `incoming_call` and `dtmf` events.
+**Check:** Verify the `sessionId` is included in the DTMF event.
 
 ### Audio Echo Not Working
 
