@@ -43,6 +43,7 @@ node index.js
 ```
 
 Server output:
+
 ```
 WS server listening on :4143
 ```
@@ -54,16 +55,14 @@ python client_example.py
 ```
 
 Client output:
+
 ```
 2025-12-25 00:00:00 - INFO - Connecting to ws://localhost:4143...
 2025-12-25 00:00:00 - INFO - Connected!
 2025-12-25 00:00:00 - INFO - Waiting for events from server...
 2025-12-25 00:00:00 - INFO - Received JSON: {'event': 'incoming_call', 'sessionId': '550e8400...'}
-2025-12-25 00:00:05 - INFO - Received JSON: {'event': 'answer', 'sessionId': '550e8400...'}
 2025-12-25 00:00:05 - INFO - Call ANSWERED!
-2025-12-25 00:00:05 - INFO - Audio stream started (sending dummy PCM data)...
-2025-12-25 00:00:06 - INFO - Sent DTMF: 1
-2025-12-25 00:00:07 - INFO - Sent DTMF: 2
+
 ...
 ```
 
@@ -93,6 +92,7 @@ Sent when a DTMF digit is pressed.
 **Valid Digits:** `0-9`, `*`, `#`, `A-D`
 
 **Server Response:**
+
 - Logs the DTMF event
 
 #### `hangup`
@@ -107,6 +107,7 @@ Sent when the client terminates the call.
 ```
 
 **Server Response:**
+
 - Logs the hangup event
 
 ### Server → Client Events
@@ -183,17 +184,21 @@ Server ────────────────────[hangup]─�
 **Detailed Flow:**
 
 1. **Connection** (0s)
+
    - Client connects to `ws://localhost:4143`
 
 2. **Incoming Call** (0s)
+
    - Server sends `{ "event": "incoming_call", "sessionId": "..." }`
 
 3. **Answer** (5s)
+
    - Server sends `{ "event": "answer", "sessionId": "..." }`
    - Client starts streaming binary audio
    - Server echoes audio back
 
 4. **DTMF** (5s - 15s)
+
    - Client sends DTMF events: `{ "event": "dtmf", "digit": "1" }`
    - Server logs each DTMF event
 
@@ -215,31 +220,35 @@ python client_example.py
 python client_example.py --help
 ```
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--url` | WebSocket server URL | `ws://localhost:4143` |
-| `--no-dtmf` | Disable sending DTMF events | `false` |
-| `--auto-hangup` | Auto hangup after sending audio | `false` |
-| `--verbose` | Enable verbose logging | `false` |
+| Option          | Description                     | Default               |
+| --------------- | ------------------------------- | --------------------- |
+| `--url`         | WebSocket server URL            | `ws://localhost:4143` |
+| `--no-dtmf`     | Disable sending DTMF events     | `false`               |
+| `--auto-hangup` | Auto hangup after sending audio | `false`               |
+| `--verbose`     | Enable verbose logging          | `false`               |
 
 ### Examples
 
 **Connect to custom server:**
+
 ```bash
 python client_example.py --url ws://192.168.1.100:4143
 ```
 
 **Disable DTMF:**
+
 ```bash
 python client_example.py --no-dtmf
 ```
 
 **Auto hangup:**
+
 ```bash
 python client_example.py --auto-hangup
 ```
 
 **Verbose mode:**
+
 ```bash
 python client_example.py --verbose
 ```
@@ -279,6 +288,7 @@ python client_example.py --verbose
 **Error:** `ModuleNotFoundError: No module named 'websockets'`
 
 **Solution:** Install the dependency:
+
 ```bash
 pip install websockets
 ```
