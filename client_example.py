@@ -17,7 +17,6 @@ class VoIPVendorClient:
     def __init__(self, server_url="ws://localhost:4143", send_dtmf=True, auto_hangup=False):
         self.server_url = server_url
         self.session_id = str(uuid.uuid4())
-        self.send_dtmf = send_dtmf
         self.auto_hangup = auto_hangup
         self.audio_task = None
         self.call_active = False
