@@ -1,40 +1,19 @@
 import { WebSocketServer } from "ws";
-import { randomUUID } from "crypto";
 
 const wss = new WebSocketServer({ port: 4143 });
 
 wss.on("connection", (ws, req) => {
   console.log("Client connected");
 
-  const sessionId = randomUUID();
-
   setTimeout(() => {
     console.log("send action incoming call");
     ws.send(
       JSON.stringify({
         event: "incoming_call",
-        sessionId: sessionId,
       })
     );
 
-    setTimeout(() => {
-      console.log("send action answer call");
-      ws.send(
-        JSON.stringify({
-          event: "answer",
-          sessionId: sessionId,
-        })
-      );
-
-      setTimeout(() => {
-        console.log("send action hangup call");
-        ws.send(
-          JSON.stringify({
-            event: "hangup",
-          })
-        );
-      }, 1000 * 10);
-    }, 5000);
+    
   }, 1000);
 
   ws.on("message", (data, isBinary) => {
@@ -44,6 +23,28 @@ wss.on("connection", (ws, req) => {
 
       if (payload && payload.event) {
         switch (payload.event) {
+          case 'incoming_call':
+            console.log("Incoming call received:", {
+              event: "incoming_call",
+            });
+            setTimeout(() => {
+              console.log("send action answer call");
+              ws.send(
+                JSON.stringify({
+                  event: "answer",
+                })
+              );
+
+              setTimeout(() => {
+                console.log("send action hangup call");
+                ws.send(
+                  JSON.stringify({
+                    event: "hangup",
+                  })
+                );
+              }, 1000 * 10);
+            }, 5000);
+            break;
           /***
            * receive dtmf evebt from client
            */

@@ -11,6 +11,7 @@ This project implements a WebSocket server acting as an inbound call handler. It
 - [API Events](#api-events)
 - [Architecture](#architecture)
 - [Call Flow](#call-flow)
+- [Server Implementations](#server-implementations)
 - [Python Client](#python-client)
 - [Troubleshooting](#troubleshooting)
 
@@ -19,13 +20,20 @@ This project implements a WebSocket server acting as an inbound call handler. It
 - **Port**: `4143`
 - **Protocol**: `ws://`
 - **Node.js Version**: 14+
+- **Python Version**: 3.7+
 
 ## Installation
 
-### Server
+### Node.js Server
 
 ```bash
 npm install
+```
+
+### Python Server
+
+```bash
+pip install websockets
 ```
 
 ### Python Client
@@ -36,22 +44,37 @@ pip install websockets
 
 ## Quick Start
 
-### 1. Start the Server
+### Option 1: Node.js Server + Python Client
 
 ```bash
+# Terminal 1: Start Node.js server
 node index.js
+
+# Terminal 2: Run Python client
+python client_python.py
 ```
 
-Server output:
+### Option 2: Python Server + Python Client
 
+```bash
+# Terminal 1: Start Python server
+python server_example.py
+
+# Terminal 2: Run Python client
+python client_python.py
+```
+
+### Server Output
+
+Node.js:
 ```
 WS server listening on :4143
 ```
 
-### 2. Run the Python Client
-
-```bash
-python client_example.py
+Python:
+```
+2025-12-25 00:00:00 - INFO - Starting WebSocket server on localhost:4143
+2025-12-25 00:00:00 - INFO - WebSocket server listening on ws://localhost:4143
 ```
 
 Client output:
@@ -76,6 +99,8 @@ The server handles two types of messages:
 ## API Events
 
 ### Client → Server Events
+
+**Note:** Client generates its own `sessionId` upon connection and includes it in `dtmf` and `hangup` events.
 
 #### `dtmf`
 
@@ -118,8 +143,7 @@ Sent when a new call is received by the server.
 
 ```json
 {
-  "event": "incoming_call",
-  "sessionId": "string"
+  "event": "incoming_call"
 }
 ```
 
@@ -129,8 +153,7 @@ Sent 5 seconds after receiving `incoming_call`.
 
 ```json
 {
-  "event": "answer",
-  "sessionId": "string"
+  "event": "answer"
 }
 ```
 
@@ -149,7 +172,7 @@ Sent 10 seconds after sending `answer` (total 15 seconds after `incoming_call`).
 ```
 ┌─────────────────┐         WebSocket          ┌─────────────────┐
 │  VoIP Vendor    │ ◄────────────────────────► │  Inbound Server │
-│  (Client)       │                            │   (index.js)    │
+│  (Client)       │                            │   (Node.js/Python) │
 │                 │                            │                 │
 │ - Connect       │                            │ - Listen        │
 │ - Stream Audio  │                            │ - incoming_call │
@@ -160,25 +183,29 @@ Sent 10 seconds after sending `answer` (total 15 seconds after `incoming_call`).
 └─────────────────┘                            └─────────────────┘
 ```
 
+**Server Options:**
+- `index.js` - Node.js implementation
+- `server_example.py` - Python implementation
+
 ## Call Flow
 
 ```
-Timeline:  0s      5s       15s
-           │       │        │
-           ▼       ▼        ▼
-Server ───[incoming_call]──► Client
-                           │
-                           │
-Server ─────────────────────[answer]───► Client
-                           │
-                           │
-Client ────[Audio Stream]──┼──► Server
-           │               │
-           │               │
-Client ────[DTMF Events]───┼──► Server
-           │               │
-           │               │
-Server ────────────────────[hangup]──► Client
+Timeline:  0s     1s     6s     16s
+           │      │      │      │
+           ▼      ▼      ▼      ▼
+Server ───[incoming_call]─► Client
+                          │
+                          │
+Server ────────────────────[answer]─► Client
+                          │
+                          │
+Client ─────[Audio Stream]┼──► Server
+             │             │
+             │             │
+Client ─────[DTMF Events]──┼──► Server
+             │             │
+             │             │
+Server ─────────────────────[hangup]─► Client
 ```
 
 **Detailed Flow:**
@@ -186,38 +213,89 @@ Server ────────────────────[hangup]─�
 1. **Connection** (0s)
 
    - Client connects to `ws://localhost:4143`
+   - Client generates `sessionId`
 
-2. **Incoming Call** (0s)
+2. **Incoming Call** (1s)
 
-   - Server sends `{ "event": "incoming_call", "sessionId": "..." }`
+   - Server sends `{ "event": "incoming_call" }`
 
-3. **Answer** (5s)
+3. **Answer** (6s)
 
-   - Server sends `{ "event": "answer", "sessionId": "..." }`
+   - Server sends `{ "event": "answer" }`
    - Client starts streaming binary audio
    - Server echoes audio back
 
-4. **DTMF** (5s - 15s)
+4. **DTMF** (6s - 16s)
 
-   - Client sends DTMF events: `{ "event": "dtmf", "digit": "1" }`
+   - Client sends DTMF events: `{ "event": "dtmf", "sessionId": "...", "digit": "1" }`
    - Server logs each DTMF event
 
-5. **Hangup** (15s)
+5. **Hangup** (16s)
+
    - Server sends `{ "event": "hangup" }`
    - Connection closes
+
+## Server Implementations
+
+### Node.js Server (`index.js`)
+
+**Start:**
+```bash
+node index.js
+```
+
+**Features:**
+- Native WebSocket implementation using `ws` library
+- Built-in crypto module for UUID generation
+- Event-driven architecture
+- Echo binary audio data
+
+### Python Server (`server_example.py`)
+
+**Start:**
+```bash
+python server_example.py
+```
+
+**Options:**
+```bash
+python server_example.py --help
+```
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--host` | Host to bind to | `localhost` |
+| `--port` | Port to bind to | `4143` |
+| `--verbose` | Enable verbose logging | `false` |
+
+**Examples:**
+```bash
+# Custom host and port
+python server_example.py --host 0.0.0.0 --port 8080
+
+# Verbose mode
+python server_example.py --verbose
+```
+
+**Features:**
+- Async/await architecture using `websockets` library
+- Class-based design for better organization
+- Configurable host and port
+- Echo binary audio data
+- Comprehensive logging
 
 ## Python Client
 
 ### Basic Usage
 
 ```bash
-python client_example.py
+python client_python.py
 ```
 
 ### Command-Line Options
 
 ```bash
-python client_example.py --help
+python client_python.py --help
 ```
 
 | Option          | Description                     | Default               |
@@ -232,25 +310,25 @@ python client_example.py --help
 **Connect to custom server:**
 
 ```bash
-python client_example.py --url ws://192.168.1.100:4143
+python client_python.py --url ws://192.168.1.100:4143
 ```
 
 **Disable DTMF:**
 
 ```bash
-python client_example.py --no-dtmf
+python client_python.py --no-dtmf
 ```
 
 **Auto hangup:**
 
 ```bash
-python client_example.py --auto-hangup
+python client_python.py --auto-hangup
 ```
 
 **Verbose mode:**
 
 ```bash
-python client_example.py --verbose
+python client_python.py --verbose
 ```
 
 ### Client Features
