@@ -3,7 +3,7 @@ import { WebSocketServer } from "ws";
 const wss = new WebSocketServer({ port: 4143 });
 
 wss.on("connection", (ws, req) => {
-  console.log("Client connected");
+  console.log("Client connected", req.headers);
 
   ws.on("message", (data, isBinary) => {
     if (!isBinary) {

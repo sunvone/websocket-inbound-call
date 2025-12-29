@@ -1,6 +1,6 @@
 # WebSocket Server API Documentation
 
-WebSocket server for inbound call handling. Processes call-related events and handles binary audio data streaming.
+WebSocket server for inbound call handling. Processes call-related events and handles binary audio data streaming. You need to implement your own WebSocket server and handle the events and actions during the WebSocket communication process.
 
 ## Table of Contents
 
@@ -11,8 +11,8 @@ WebSocket server for inbound call handling. Processes call-related events and ha
 
 ## Server Information
 
-- **Port**: `4143`
-- **Protocol**: `ws://`
+- **Port**: `4143` (Customizable - define your own port and inform the development team)
+- **Protocol**: `ws://` (Can be either `ws://` or `wss://`)
 
 ## Message Formats
 
@@ -30,6 +30,7 @@ The server handles two types of messages:
 Sent when a new call is received by the server.
 
 **Payload:**
+
 ```json
 {
   "event": "incoming_call",
@@ -39,11 +40,17 @@ Sent when a new call is received by the server.
 }
 ```
 
+**Parameters:**
+- `callerId`: Caller phone number
+- `didNumber`: Destination phone number
+- `sessionId`: Unique session identifier for the call
+
 #### `dtmf`
 
-Sent when a DTMF digit is pressed.
+Sent when a DTMF digit is pressed by the caller.
 
 **Payload:**
+
 ```json
 {
   "event": "dtmf",
@@ -55,9 +62,10 @@ Sent when a DTMF digit is pressed.
 
 #### `hangup`
 
-Sent when client terminates call.
+Sent when client terminates the call.
 
 **Payload:**
+
 ```json
 {
   "event": "hangup"
@@ -68,9 +76,10 @@ Sent when client terminates call.
 
 #### `answer`
 
-Answer call
+Sent to answer the incoming call.
 
 **Payload:**
+
 ```json
 {
   "event": "answer"
@@ -79,9 +88,10 @@ Answer call
 
 #### `dtmf`
 
-Sent to initiate DTMF tone.
+Sent to initiate DTMF tone to the caller.
 
 **Payload:**
+
 ```json
 {
   "event": "dtmf",
@@ -96,9 +106,10 @@ Sent to initiate DTMF tone.
 
 #### `hangup`
 
-Sent hangup request
+Sent to terminate the call.
 
 **Payload:**
+
 ```json
 {
   "event": "hangup"
@@ -149,8 +160,8 @@ Server ─────────────────────[hangup]�
 
 5. **Audio Stream & DTMF** (7s - 17s)
 
-   - Client streams binary audio
-   - Server echoes audio back
+   - Client streams binary audio data
+   - Server echoes audio data back
    - Client sends DTMF events: `{ "event": "dtmf", "digit": "1" }`
 
 6. **Hangup** (17s)
