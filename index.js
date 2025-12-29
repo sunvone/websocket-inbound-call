@@ -5,27 +5,18 @@ const wss = new WebSocketServer({ port: 4143 });
 wss.on("connection", (ws, req) => {
   console.log("Client connected");
 
-  setTimeout(() => {
-    console.log("send action incoming call");
-    ws.send(
-      JSON.stringify({
-        event: "incoming_call",
-      })
-    );
-
-    
-  }, 1000);
-
   ws.on("message", (data, isBinary) => {
     if (!isBinary) {
       const payload = JSON.parse(data);
-     
 
       if (payload && payload.event) {
         switch (payload.event) {
-          case 'incoming_call':
+          case "incoming_call":
             console.log("Incoming call received:", {
               event: "incoming_call",
+              callerId: payload.callerId,
+              didNumber: payload.didNumber,
+              sessionId: payload.sessionId,
             });
             setTimeout(() => {
               console.log("send action answer call");
@@ -34,6 +25,17 @@ wss.on("connection", (ws, req) => {
                   event: "answer",
                 })
               );
+
+              //simulation send dtmf
+              setTimeout(() => {
+                ws.send(
+                  JSON.stringify({
+                    event: "dtmf",
+                    digit: "1", //digit 0-9 * and #
+                    duration: 200, //duration dtmf in milisecond  max 1000ms
+                  })
+                );
+              }, 2000);
 
               setTimeout(() => {
                 console.log("send action hangup call");
@@ -51,20 +53,18 @@ wss.on("connection", (ws, req) => {
           case "dtmf":
             console.log("DTMF received:", {
               event: "dtmf",
-              sessionId: payload.sessionId,
               digit: payload.digit,
             });
             break;
-            /**
-             * receive hangup event from client
-             */
-           case "hangup":
-             console.log("Hangup received:", {
-               event: "hangup",
-               sessionId: payload.sessionId,
-             });
-             break;
-         }
+          /**
+           * receive hangup event from client
+           */
+          case "hangup":
+            console.log("Hangup received:", {
+              event: "hangup",
+            });
+            break;
+        }
       }
     } else {
       //audio data
