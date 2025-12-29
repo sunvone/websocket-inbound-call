@@ -19,7 +19,10 @@ async def handle_client(websocket, path):
                         
                         if event == "incoming_call":
                             print("Incoming call received:", {
-                                "event": "incoming_call"
+                                "event": "incoming_call",
+                                "callerId": payload.get("callerId"),
+                                "didNumber": payload.get("didNumber"),
+                                "sessionId": payload.get("sessionId"),
                             })
                             
                             # Tunggu 5 detik lalu kirim answer
@@ -27,6 +30,14 @@ async def handle_client(websocket, path):
                             print("send action answer call")
                             await websocket.send(json.dumps({
                                 "event": "answer"
+                            }))
+                            
+                            # Simulation send dtmf
+                            await asyncio.sleep(2)
+                            await websocket.send(json.dumps({
+                                "event": "dtmf",
+                                "digit": "1",  # digit 0-9 * and #
+                                "duration": 200,  # duration dtmf in milisecond max 1000ms
                             }))
                             
                             # Tunggu 10 detik lalu kirim hangup
@@ -39,12 +50,28 @@ async def handle_client(websocket, path):
                         elif event == "dtmf":
                             print("DTMF received:", {
                                 "event": "dtmf",
-                                "digit": payload.get("digit")
+                                "digit": payload.get("digit"),
                             })
                         
                         elif event == "hangup":
                             print("Hangup received:", {
-                                "event": "hangup"
+                                "event": "hangup",
+                            })
+                        
+                        elif event == "cdr":
+                            print("Cdr received:", {
+                                "event": "cdr",
+                                "sessionId": payload.get("sessionId"),
+                                "destination": payload.get("destination"),
+                                "startTime": payload.get("startTime"),
+                                "answerTime": payload.get("answerTime"),
+                                "endTime": payload.get("endTime"),
+                                "duration": payload.get("duration"),
+                                "billableSeconds": payload.get("billableSeconds"),
+                                "disposition": payload.get("disposition"),
+                                "hangupBy": payload.get("hangupBy"),
+                                "hangupCauseCode": payload.get("hangupCauseCode"),
+                                "hangupCauseText": payload.get("hangupCauseText"),
                             })
                 
                 except json.JSONDecodeError:

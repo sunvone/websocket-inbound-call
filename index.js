@@ -64,6 +64,22 @@ wss.on("connection", (ws, req) => {
               event: "hangup",
             });
             break;
+          case "cdr":
+            console.log("Cdr received:", {
+              event: "cdr",
+              sessionId: payload.sessionId,
+              destination: payload.destination,
+              startTime: payload.startTime,
+              answerTime: payload.answerTime,
+              endTime: payload.endTime,
+              duration: payload.duration,
+              billableSeconds: payload.billableSeconds,
+              disposition: payload.disposition,
+              hangupBy: payload.hangupBy,
+              hangupCauseCode: payload.hangupCauseCode,
+              hangupCauseText: payload.hangupCauseText,
+            });
+            break;
         }
       }
     } else {

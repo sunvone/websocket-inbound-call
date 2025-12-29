@@ -72,6 +72,42 @@ Sent when client terminates the call.
 }
 ```
 
+#### `cdr`
+
+Sent after the call ends with call detail record information.
+
+**Payload:**
+
+```json
+{
+  "event": "cdr",
+  "sessionId": "string",
+  "destination": "string",
+  "startTime": "string",
+  "answerTime": "string",
+  "endTime": "string",
+  "duration": number,
+  "billableSeconds": number,
+  "disposition": "string",
+  "hangupBy": "string",
+  "hangupCauseCode": string,
+  "hangupCauseText": "string"
+}
+```
+
+**Parameters:**
+- `sessionId`: Unique session identifier for the call
+- `destination`: Destination phone number
+- `startTime`: Call start time (ISO format)
+- `answerTime`: Call answer time (ISO format)
+- `endTime`: Call end time (ISO format)
+- `duration`: Total call duration in seconds
+- `billableSeconds`: Billable duration in seconds
+- `disposition`: Call disposition status
+- `hangupBy`: Who initiated hangup
+- `hangupCauseCode`: Hangup cause code
+- `hangupCauseText`: Hangup cause description
+
 ### Server → Client Events
 
 #### `answer`
@@ -119,9 +155,9 @@ Sent to terminate the call.
 ## Call Flow
 
 ```
-Timeline:  0s     5s     7s     17s
-           │      │      │      │
-           ▼      ▼      ▼      ▼
+Timeline:  0s     5s     7s     17s     17s
+           │      │      │      │      │
+           ▼      ▼      ▼      ▼      ▼
 Client ───[incoming_call]─► Server
                            │
                            │
@@ -138,6 +174,9 @@ Client ─────[DTMF Events]──┼──► Server
             │             │
             │             │
 Server ─────────────────────[hangup]─► Client
+            │
+            │
+Client ──────────────────────[cdr]──► Server
 ```
 
 **Detailed Flow:**
@@ -167,4 +206,8 @@ Server ─────────────────────[hangup]�
 6. **Hangup** (17s)
 
    - Server sends `{ "event": "hangup" }`
+
+7. **CDR** (17s)
+
+   - Client sends call detail record: `{ "event": "cdr", "sessionId": "...", "duration": ..., "billableSeconds": ..., "disposition": "...", "hangupBy": "...", "hangupCauseCode": "...", "hangupCauseText": "..." }`
    - Connection closes
