@@ -37,6 +37,15 @@ wss.on("connection", (ws, req) => {
                 );
               }, 2000);
 
+              //send interrupt audio
+              setTimeout(() => {
+                ws.send(
+                  JSON.stringify({
+                    event: "interrupt",
+                  })
+                );
+              }, 3000);
+
               setTimeout(() => {
                 console.log("send action hangup call");
                 ws.send(

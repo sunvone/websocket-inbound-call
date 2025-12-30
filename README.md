@@ -146,6 +146,18 @@ Sent to initiate DTMF tone to the caller.
 - `digit`: DTMF digit to send (`0-9`, `*`, `#`)
 - `duration`: Tone duration in milliseconds (max 1000ms)
 
+#### `interrupt`
+
+Sent to interrupt audio streaming.
+
+**Payload:**
+
+```json
+{
+  "event": "interrupt"
+}
+```
+
 #### `hangup`
 
 Sent to terminate the call.
@@ -161,9 +173,9 @@ Sent to terminate the call.
 ## Call Flow
 
 ```
-Timeline:  0s     5s     7s     17s     17s
-           │      │      │      │      │
-           ▼      ▼      ▼      ▼      ▼
+Timeline:  0s     5s     7s     8s     17s     17s
+           │      │      │      │      │      │
+           ▼      ▼      ▼      ▼      ▼      ▼
 Client ───[incoming_call]─► Server
                            │
                            │
@@ -171,6 +183,9 @@ Server ────────────────────[answer]─�
                            │
                            │
 Server ─────────────────────[dtmf]──► Client
+                           │
+                           │
+Server ─────────────────────[interrupt]► Client
                            │
                            │
 Client ─────[Audio Stream]┼──► Server
@@ -203,17 +218,21 @@ Client ──────────────────────[cdr]�
 
    - Server sends `{ "event": "dtmf", "digit": "1", "duration": 200 }`
 
-5. **Audio Stream & DTMF** (7s - 17s)
+5. **Interrupt Audio** (8s)
+
+   - Server sends `{ "event": "interrupt" }`
+
+6. **Audio Stream & DTMF** (8s - 17s)
 
    - Client streams binary audio data
    - Server echoes audio data back
    - Client sends DTMF events: `{ "event": "dtmf", "digit": "1" }`
 
-6. **Hangup** (17s)
+7. **Hangup** (17s)
 
    - Server sends `{ "event": "hangup" }`
 
-7. **CDR** (17s)
+8. **CDR** (17s)
 
    - Client sends call detail record: `{ "event": "cdr", "sessionId": "...", "source": "...", "destination": "...", "duration": ..., "billableSeconds": ..., "disposition": "...", "hangupBy": "...", "hangupCauseCode": "...", "hangupCauseText": "..." }`
    - Connection closes

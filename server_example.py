@@ -25,8 +25,14 @@ async def handle_incoming_call(websocket, payload):
         "duration": 200,  # duration dtmf in milisecond max 1000ms
     }))
     
-    # Tunggu 10 detik lalu kirim hangup
-    await asyncio.sleep(10)
+    # Send interrupt audio
+    await asyncio.sleep(1)
+    await websocket.send(json.dumps({
+        "event": "interrupt"
+    }))
+    
+    # Tunggu 7 detik lalu kirim hangup
+    await asyncio.sleep(7)
     print("send action hangup call")
     await websocket.send(json.dumps({
         "event": "hangup"
