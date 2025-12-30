@@ -68,6 +68,7 @@ wss.on("connection", (ws, req) => {
             console.log("Cdr received:", {
               event: "cdr",
               sessionId: payload.sessionId,
+              source: payload.source,
               destination: payload.destination,
               startTime: payload.startTime,
               answerTime: payload.answerTime,

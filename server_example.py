@@ -64,6 +64,7 @@ async def handle_client(websocket):
                             print("Cdr received:", {
                                 "event": "cdr",
                                 "sessionId": payload.get("sessionId"),
+                                "source": payload.get("source"),
                                 "destination": payload.get("destination"),
                                 "startTime": payload.get("startTime"),
                                 "answerTime": payload.get("answerTime"),

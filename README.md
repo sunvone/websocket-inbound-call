@@ -1,6 +1,6 @@
 # WebSocket Server API Documentation
 
-WebSocket server for inbound call handling. Processes call-related events and handles binary audio data streaming. You need to implement your own WebSocket server and handle the events and actions during the WebSocket communication process.
+WebSocket server for inbound call handling. Processes call-related events and handles binary audio data streaming. You need to implement your own WebSocket server and handle events and actions during WebSocket communication process.
 
 ## Table of Contents
 
@@ -8,10 +8,11 @@ WebSocket server for inbound call handling. Processes call-related events and ha
 - [Message Formats](#message-formats)
 - [API Events](#api-events)
 - [Call Flow](#call-flow)
+- [Example Source Code](#example-source-code)
 
 ## Server Information
 
-- **Port**: `4143` (Customizable - define your own port and inform the development team)
+- **Port**: `4143` (Customizable - define your own port and inform development team)
 - **Protocol**: `ws://` (Can be either `ws://` or `wss://`)
 
 ## Message Formats
@@ -27,7 +28,7 @@ The server handles two types of messages:
 
 #### `incoming_call`
 
-Sent when a new call is received by the server.
+Sent when a new call is received by server.
 
 **Payload:**
 
@@ -41,6 +42,7 @@ Sent when a new call is received by the server.
 ```
 
 **Parameters:**
+
 - `callerId`: Caller phone number
 - `didNumber`: Destination phone number
 - `sessionId`: Unique session identifier for the call
@@ -82,6 +84,7 @@ Sent after the call ends with call detail record information.
 {
   "event": "cdr",
   "sessionId": "string",
+  "source": "string",
   "destination": "string",
   "startTime": "string",
   "answerTime": "string",
@@ -96,7 +99,9 @@ Sent after the call ends with call detail record information.
 ```
 
 **Parameters:**
+
 - `sessionId`: Unique session identifier for the call
+- `source`: Source phone number
 - `destination`: Destination phone number
 - `startTime`: Call start time (ISO format)
 - `answerTime`: Call answer time (ISO format)
@@ -137,6 +142,7 @@ Sent to initiate DTMF tone to the caller.
 ```
 
 **Parameters:**
+
 - `digit`: DTMF digit to send (`0-9`, `*`, `#`)
 - `duration`: Tone duration in milliseconds (max 1000ms)
 
@@ -209,5 +215,9 @@ Client ──────────────────────[cdr]�
 
 7. **CDR** (17s)
 
-   - Client sends call detail record: `{ "event": "cdr", "sessionId": "...", "duration": ..., "billableSeconds": ..., "disposition": "...", "hangupBy": "...", "hangupCauseCode": "...", "hangupCauseText": "..." }`
+   - Client sends call detail record: `{ "event": "cdr", "sessionId": "...", "source": "...", "destination": "...", "duration": ..., "billableSeconds": ..., "disposition": "...", "hangupBy": "...", "hangupCauseCode": "...", "hangupCauseText": "..." }`
    - Connection closes
+
+## Example Source Code
+
+Complete example source code available at: https://github.com/sunvone/websocket-inbound-call
