@@ -176,28 +176,28 @@ Sent to terminate the call.
 Timeline:  0s     5s     7s     8s     17s     17s
            │      │      │      │      │      │
            ▼      ▼      ▼      ▼      ▼      ▼
-Client ───[incoming_call]─► Server
+Client (optimaccs) ───[incoming_call]─► Server (kataliz)
                            │
                            │
-Server ────────────────────[answer]─► Client
+Server (kataliz) ────────────────────[answer]─► Client (optimaccs)
                            │
                            │
-Server ─────────────────────[dtmf]──► Client
+Server (kataliz) ─────────────────────[dtmf]──► Client (optimaccs)
                            │
                            │
-Server ─────────────────────[interrupt]► Client
+Server (kataliz) ─────────────────────[interrupt]► Client (optimaccs)
                            │
                            │
-Client ─────[Audio Stream]┼──► Server
+Client (optimaccs) ─────[Audio Stream]┼──► Server (kataliz)
             │             │
             │             │
-Client ─────[DTMF Events]──┼──► Server
+Client (optimaccs) ─────[DTMF Events]──┼──► Server (kataliz)
             │             │
             │             │
-Server ─────────────────────[hangup]─► Client
+Server (kataliz) ─────────────────────[hangup]─► Client
             │
             │
-Client ──────────────────────[cdr]──► Server
+Client (optimaccs) ──────────────────────[cdr]──► Server (kataliz)
 ```
 
 **Detailed Flow:**
